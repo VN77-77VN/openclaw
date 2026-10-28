@@ -107,7 +107,7 @@ export async function refreshScope(ui: Page, replaceLocation = true) {
     // (re-asked below if the facts pick one), or facts already known from an earlier check.
     // A linked agent before the first snapshot may be the default and must not be proxied.
     const viewingBefore = s.viewing,
-      defaultBefore = s.storesSnapshot?.defaultAgent;
+      factsBefore = s.storesSnapshot;
     let statusRequest = !s.viewing || s.storesSnapshot ? feature.invoke("status", {}) : undefined;
     statusRequest?.catch(() => undefined);
     const stores = await base.invoke("stores_snapshot", {}).catch(() => undefined);
@@ -123,11 +123,12 @@ export async function refreshScope(ui: Page, replaceLocation = true) {
       }
       renderStoreContext();
     }
-    // Re-ask when the facts changed the routing: a newly named agent or a new default agent.
+    // Re-ask when the facts changed the routing: a newly named agent, or a default agent that
+    // differs from earlier facts. First facts naming a default keep the ordinary request.
     if (
       !statusRequest ||
       s.viewing !== viewingBefore ||
-      s.storesSnapshot?.defaultAgent !== defaultBefore
+      (factsBefore && s.storesSnapshot?.defaultAgent !== factsBefore.defaultAgent)
     ) {
       statusRequest = feature.invoke("status", {});
     }

@@ -65,8 +65,7 @@ function mount(held: string[] = [], failing: string[] = []) {
   return { calls, release, gates };
 }
 
-const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
-  document.querySelector<T>(selector);
+const $ = (selector: string) => document.querySelector<HTMLElement>(selector);
 const tab = (name: string) =>
   [...document.querySelectorAll<HTMLButtonElement>(".knowledge-tab")].find((node) =>
     node.textContent!.startsWith(name),
@@ -82,6 +81,7 @@ it("checks status beside store facts and shows both tab counts at once", async (
   release("stores_snapshot");
   release("status");
   await shows("No recent activity");
+  expect(calls.filter((call) => call === "status")).toHaveLength(1);
   expect($(".knowledge-copy-pending")).toBeNull();
   expect(tab("Browse").querySelector(".knowledge-tab-count-pending")).not.toBeNull();
   release("scribes");
